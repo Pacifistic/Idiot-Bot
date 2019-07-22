@@ -1,39 +1,18 @@
 import discord
 import random
-import time
 import sys
 import traceback
+import spread
 
 from discord import Game
 from discord.ext import commands
 from discord import client
 
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 
-TOKEN = ''
+
+TOKEN = 'NjAyNzQ1NTk4MjU2NjExMzQ5.XTVh2A.TIyELkhAZ_ySFXg9qXNw-qgM7JQ'
 
 bot = commands.Bot(command_prefix='?')
-
-
-def isAFK(member: discord.VoiceState):
-    if member.deaf:
-        return True
-    elif member.mute:
-        return True
-    elif member.self_mute:
-        return True
-    elif member.self_deaf:
-        return True
-    elif member.afk:
-        return True
-    return False
-
-
-def get_time():
-    localtime = time.asctime(time.localtime(time.time()))
-    return localtime
 
 
 @bot.event
@@ -108,18 +87,7 @@ async def pick_idiot(ctx):
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    if before.channel is None and after.channel is not None:
-        print(member.display_name + ' joined '+after.channel.name)
-        return
-    elif after.channel is None:
-        print(member.display_name + ' disconnected')
-        return
-    elif isAFK(after):
-        print(member.display_name + ' is AFK')
-        return
-    else:
-        print(member.display_name + ' is back')
-        return
+    spread.log_update(member, before, after)
 
 
 bot.run(TOKEN)
