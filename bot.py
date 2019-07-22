@@ -3,6 +3,7 @@ import random
 import sys
 import traceback
 import spread
+import asyncio
 
 from discord import Game
 from discord.ext import commands
@@ -87,7 +88,8 @@ async def pick_idiot(ctx):
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    spread.log_update(member, before, after)
+    task = asyncio.create_task(spread.log_update(member, before, after))
+    await task
 
 
 bot.run(TOKEN)

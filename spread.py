@@ -32,18 +32,57 @@ def get_last_connect_row(member: str):
     log = sheet.worksheet('log')
     lastrow = log.row_count
     connect = ['connected', 'returned']
-    print(member)
     while True:
         if lastrow <= 1:
             return 0
         name = log.cell(lastrow, 3).value
         status = log.cell(lastrow, 4).value
-        print(lastrow, name, status)
         if member == name:
             if status in connect:
                 return lastrow
             return 0
         lastrow -= 1
+
+
+def newEntry(name: str):
+    sheet = client.open('The Idiots Discord Activity')
+    data = sheet.worksheet('data')
+    totals = sheet.worksheet('total')
+
+    col = data.col_count
+    data.add_cols(1)
+    totals.add_cols(1)
+
+    data.update_cell(1, col, name)
+    totals.update_cell(1, col, name)
+
+
+def updateTotal(name: str, length: int):
+    sheet = client.open('The Idiots Discord Activity')
+    totals = sheet.worksheet('total')
+    found = False
+    col = 1
+    while col < totals.col_count:
+        if data.cell(1, col).value == name:
+            found = True
+            break
+        else:
+            col += 1
+    if not found:
+        newEntry(name)
+        totals.update_cell(2, col, length)
+    else:
+        current = int(totals.cell(2, col).value)
+        totals.update_cell(2, col, current + length)
+    updataData()
+
+
+def updataData():
+    sheet = client.open('The Idiots Discord Activity')
+    data = sheet.worksheet('data')
+    totals = sheet.worksheet('total')
+    row = totals.row_values(2)
+    data.append_row(row)
 
 
 def get_length(member: str):
@@ -52,10 +91,12 @@ def get_length(member: str):
         return 0
     current = time.time()
     length = current - float(log.cell(lastrow, 1).value)
+    length = int(length / 60)
+    updateTotal(member, length)
     return int(length / 60)
 
 
-def log_update(member, before, after):
+async def log_update(member, before, after):
     #connected to discord
     if before.channel is None and after.channel is not None:
         print(member.display_name + ' joined ' + after.channel.name)
