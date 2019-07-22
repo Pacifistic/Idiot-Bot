@@ -11,7 +11,7 @@ from discord import client
 
 
 
-TOKEN = 'NjAyNzQ1NTk4MjU2NjExMzQ5.XTVh2A.TIyELkhAZ_ySFXg9qXNw-qgM7JQ'
+TOKEN = 'NjAyNzQ1NTk4MjU2NjExMzQ5.XTZFkA.4tqBWjGeX8CF60EWrgG6gjwlXRA'
 
 bot = commands.Bot(command_prefix='?')
 
@@ -57,7 +57,7 @@ async def on_ready():
 @bot.command(name='roll',
              description='Rolls random number up to specified limit',
              brief='roll from 1 to limit',
-             aliases=['dice'])
+             aliases=['dice','Roll','Dice','DICE','ROLL'])
 async def roll(ctx, limit: int):
     rnum = random.randint(1, limit)
     await ctx.send(str(rnum))
@@ -90,6 +90,13 @@ async def pick_idiot(ctx):
 async def on_voice_state_update(member, before, after):
     task = asyncio.create_task(spread.log_update(member, before, after))
     await task
+
+
+@bot.command(name = 'activity',
+             description = 'gives link to activity spreadsheet',
+             brief = 'gives link to activity spreadsheet')
+async def activity(ctx):
+    await ctx.send('https://docs.google.com/spreadsheets/d/1pIJbxJCmHas3mF1xmckfdcFP5iQuUYCGLfe2niEKcFQ/edit?usp=sharing')
 
 
 bot.run(TOKEN)
