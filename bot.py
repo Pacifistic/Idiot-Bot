@@ -11,7 +11,7 @@ from discord import client
 
 
 
-TOKEN = 'NjAyNzQ1NTk4MjU2NjExMzQ5.XTZFkA.4tqBWjGeX8CF60EWrgG6gjwlXRA'
+TOKEN = 'NjAyNzQ1NTk4MjU2NjExMzQ5.XTZH5w.vgrPMv6BkHtXoq7lOHvAMPyheAA'
 
 bot = commands.Bot(command_prefix='?')
 
@@ -66,7 +66,7 @@ async def roll(ctx, limit: int):
 @roll.error
 async def roll_handler(ctx, error):
     if isinstance(error, commands.UserInputError):
-        await ctx.send('It\'s supposed to be a number after ?roll you moron')
+        await ctx.send('It\'s supposed to be a number after roll you moron')
 
 
 @bot.command(name='PickIdiot',

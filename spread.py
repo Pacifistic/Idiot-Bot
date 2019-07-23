@@ -91,8 +91,7 @@ def get_length(member: str):
         return 0
     current = time.time()
     length = current - float(log.cell(lastrow, 1).value)
-    length = int(length / 60)
-    updateTotal(member, length)
+    updateTotal(member, int(length / 60))
     return int(length / 60)
 
 
