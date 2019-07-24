@@ -11,7 +11,7 @@ from discord import client
 
 
 
-TOKEN = 'NjAyNzQ1NTk4MjU2NjExMzQ5.XTZH5w.vgrPMv6BkHtXoq7lOHvAMPyheAA'
+TOKEN = ''
 
 bot = commands.Bot(command_prefix='?')
 
@@ -92,6 +92,20 @@ async def on_voice_state_update(member, before, after):
     await task
 
 
+async def updateData():
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        await spread.updataData()
+        await asyncio.sleep(3600)
+
+
+async def reauthgspread():
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        await spread.reauth()
+        await asyncio.sleep(3600)
+
+
 @bot.command(name = 'activity',
              description = 'gives link to activity spreadsheet',
              brief = 'gives link to activity spreadsheet')
@@ -99,4 +113,6 @@ async def activity(ctx):
     await ctx.send('https://docs.google.com/spreadsheets/d/1pIJbxJCmHas3mF1xmckfdcFP5iQuUYCGLfe2niEKcFQ/edit?usp=sharing')
 
 
+bot.loop.create_task(updateData())
+bot.loop.create_task(reauthgspread())
 bot.run(TOKEN)

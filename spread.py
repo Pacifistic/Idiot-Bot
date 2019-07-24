@@ -26,71 +26,67 @@ def isAFK(member: discord.VoiceState):
         return True
     return False
 
-#get time of last connection
-def get_last_connect_row(member: str):
-    sheet = client.open('The Idiots Discord Activity')
-    log = sheet.worksheet('log')
-    lastrow = log.row_count
-    connect = ['connected', 'returned']
-    while True:
-        if lastrow <= 1:
-            return 0
-        name = log.cell(lastrow, 3).value
-        status = log.cell(lastrow, 4).value
-        if member == name:
-            if status in connect:
-                return lastrow
-            return 0
-        lastrow -= 1
-
 
 def newEntry(name: str):
     sheet = client.open('The Idiots Discord Activity')
     data = sheet.worksheet('data')
-    totals = sheet.worksheet('total')
 
     col = data.col_count
     data.add_cols(1)
-    totals.add_cols(1)
 
     data.update_cell(1, col, name)
-    totals.update_cell(1, col, name)
 
 
 def updateTotal(name: str, length: int):
     sheet = client.open('The Idiots Discord Activity')
     totals = sheet.worksheet('total')
-    found = False
-    col = 1
-    while col < totals.col_count:
-        if data.cell(1, col).value == name:
-            found = True
-            break
-        else:
-            col += 1
-    if not found:
-        newEntry(name)
-        totals.update_cell(2, col, length)
-    else:
-        current = int(totals.cell(2, col).value)
-        totals.update_cell(2, col, current + length)
-    updataData()
+
+    totalsdata = totals.get_all_records()
+    count = 2
+
+    for person in totalsdata:
+        if person.get('name') == name:
+            length = length + int(person.get('length'))
+            totals.update_cell(count, 2, length)
+            return
+        count += 1
+
+    newEntry(name)
+    row = [name, length]
+    totals.append_row(row)
 
 
-def updataData():
+async def updataData():
     sheet = client.open('The Idiots Discord Activity')
     data = sheet.worksheet('data')
     totals = sheet.worksheet('total')
-    row = totals.row_values(2)
+    row = totals.col_values(2)
+    row.pop(0)
+    row.insert(0, time.asctime())
     data.append_row(row)
 
 
+#get time of last connection
+def get_last_connect_time(member: str):
+    sheet = client.open('The Idiots Discord Activity')
+    log = sheet.worksheet('log')
+    loglist = log.get_all_records()
+    connect = ['connected', 'returned']
+
+    entries = list(filter(lambda entry: entry['name'] == member, loglist))
+
+    while True:
+        entry = entries.pop()
+        if entry.get('status') in connect:
+            return float(entry.get('time'))
+
+
 def get_length(member: str):
-    lastrow = get_last_connect_row(member)
-    if lastrow is 0:
+    lasttime = get_last_connect_time(member)
+    if lasttime is 0:
         return 0
     current = time.time()
-    length = current - float(log.cell(lastrow, 1).value)
+    length = current - lasttime
     updateTotal(member, int(length / 60))
     return int(length / 60)
 
@@ -114,6 +110,12 @@ async def log_update(member, before, after):
         row = [time.time(), time.asctime(), member.name, 'AFK', before.channel.name, get_length(member.name)]
         log.append_row(row)
         return
+    #left AFK channel
+    elif before.channel.name == 'AFK' and after.channel is not None and after.channel is not before.channel:
+        print(member.display_name + ' is back')
+        row = [time.time(), time.asctime(), member.name, 'returned', after.channel.name]
+        log.append_row(row)
+        return
     # changed channel
     elif before.channel is not after.channel:
         print(member.display_name + ' moved to ' + after.channel.name)
@@ -127,3 +129,7 @@ async def log_update(member, before, after):
         log.append_row(row)
         return
 
+
+async def reauth():
+    global client
+    client.login()
