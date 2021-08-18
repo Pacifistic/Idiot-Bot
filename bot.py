@@ -38,7 +38,7 @@ async def on_command_error(ctx, error):
             pass
 
     elif isinstance(error, commands.UserInputError):
-        return await ctx.send('Thats the wrong syntax you fucking idiot')
+        return await ctx.send('Thats the wrong syntax you dummy')
 
     print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
